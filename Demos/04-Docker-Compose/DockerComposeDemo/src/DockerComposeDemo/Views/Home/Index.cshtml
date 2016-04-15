@@ -1,0 +1,42 @@
+@using DockerComposeDemo.Models
+@model IEnumerable<DockerComposeDemo.Models.Customer>
+
+@{
+    ViewData["Title"] = "Northwind Customers";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-condensed table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>City</th>
+            <th>Country</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>
+                    @customer.CustomerId
+                </td>
+                <td>
+                    @customer.CompanyName
+                </td>
+                <td>
+                    @customer.ContactName
+                </td>
+                <td>
+                    @customer.City
+                </td>
+                <td>
+                    @customer.Country
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

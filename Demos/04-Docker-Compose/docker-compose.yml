@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+      
+  my-mongodb:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    ports:
+     - "27017:27017"
+    networks:
+      - aspnetcore-network
+      
+  mongoose:
+    build:
+      context: ./MongooseExpress
+      dockerfile: mongoose.dockerfile
+    volumes:
+      - ./MongooseExpress:/var/www
+    ports:
+     - "3000:3000"
+    networks:
+      - aspnetcore-network
+
+  aspnetcore3:
+    build:
+      context: ./DockerComposeDemo/src/DockerComposeDemo
+      dockerfile: aspnetcore.dockerfile
+    volumes:
+      - ./DockerComposeDemo/src/DockerComposeDemo:/app
+    ports:
+     - "5000:5000"
+    networks:
+      - aspnetcore-network
+
+networks:
+  aspnetcore-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
