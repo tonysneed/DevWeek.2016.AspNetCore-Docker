@@ -121,3 +121,71 @@
     + `http://192.168.99.100:5000`
   - You should be able to update the web site and see the changes
     + You may need to restart the container for changes to take effect
+
+## Part D: Docker Compose
+
+1. Finally we get to use docker-compose for running multiple containers as a unit
+  - Add a `docker-compose.yml` file
+2. Add a `networks` section to declare a custom bridge network
+  
+  ```
+  networks:
+    aspnetcore-network:
+      driver: bridge
+  ```  
+
+3. Add a `volumes` section to declare a named volume for the mongo container to use
+
+  ```
+  volumes:
+    mongo-data:
+  ```
+
+4. Add a `services` section with one item for each container
+  - Add `volumes`, `ports`, and `networks` to each service
+  
+  ```
+  services:
+        
+    my-mongodb:
+      image: mongo:latest
+      volumes:
+        - mongo-data:/data/db
+      ports:
+      - "27017:27017"
+      networks:
+        - aspnetcore-network
+        
+    mongoose:
+      build:
+        context: ./MongooseExpress
+        dockerfile: mongoose.dockerfile
+      volumes:
+        - ./MongooseExpress:/var/www
+      ports:
+      - "3000:3000"
+      networks:
+        - aspnetcore-network
+
+    aspnetcore3:
+      build:
+        context: ./DockerComposeDemo/src/DockerComposeDemo
+        dockerfile: aspnetcore.dockerfile
+      volumes:
+        - ./DockerComposeDemo/src/DockerComposeDemo:/app
+      ports:
+      - "5000:5000"
+      networks:
+        - aspnetcore-network
+  ```
+  
+5. Open the Docker QuickStart Terminal and use `docker-compose` commands
+  - Get help to see the list of available commands
+  - `cd` into the directory where the `docker-compose.yml` file is located
+  - Bring up the containers with `docker-compose up`
+
+6. The first time you will need to see the mongo database with `Data/customers.json`
+  - You should be able to modify source files and see those reflected in the app
+  - Using `inspect` can look at the mounts in each container to inspect the volume mapping
+  - When finished bring down the containers with `docker-compose down`
+  
