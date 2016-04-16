@@ -9,14 +9,14 @@
     + Specify a volume on the Linux host for the database and log files
 
   ```
-  docker run --name my-mongo -d -v mongo-data:/data/db -p 27017:27017 mongo
+  docker run -d -p 27017:27017 --name my-mongo -v mongo-data:/data/db mongo
   ```
 
 2. To interact with the dockerized mongo instance, install MongoChef
   - http://3t.io/mongochef
   - Open MongoChef and create a new connection
     + For the server, enter the docker machine IP address: 192.168.99.100
-  - Click the Import button and select customers.json from the Data folder
+  - Click the Import button and select `customers.json` from the Data folder
     
 ## Part B: Mongoose Express
 
@@ -69,8 +69,8 @@
 6. Create linked docker containers (legacy)
 
   ```
-  docker run -d -p 27017:27017 --name my-mongo --v mongo-data:/data/db mongo
-  docker run -d -p 3000:3000 --link my-mongo:my-mongodb --name mongoose tonysneed/mongoose
+  docker run -d -p 27017:27017 --name my-mongo -v mongo-data:/data/db mongo
+  docker run -d -p 3000:3000 --link my-mongo:my-mongodb --name mongoose -v $(pwd):/var/www tonysneed/mongoose
   ```
   
   - Browse to the following: `http://192.168.99.100:3000/customer/`
@@ -82,7 +82,7 @@
   ```
   docker network create --driver bridge my_network
   docker run -d --net=my_network --name my-mongodb -v mongo-data:/data/db mongo
-  docker run -d -p 3000:3000 --net=my_network --name mongoose tonysneed/mongoose
+  docker run -d -p 3000:3000 --net=my_network --name -v $(pwd):/var/www mongoose tonysneed/mongoose
   ```
   
   - Note that the mongo container does not have a port mapping
@@ -96,28 +96,28 @@
   - `cd` into the app source directory
   - Build the docker image
     + Replace username with your DockerHub account name (or any name)
-    + The --file argument is optional
-  - After building image, you can view the images
-    + `docker images`
+  - After building image, you can view the images: `docker images`
   
-    ```
-    docker build --tag <username>/aspnetcore2 -- file Dockerfile .
-    ```
+  ```
+  docker build -f aspnetcore.dockerfile -t tonysneed/aspnetcore3 .
+  ```
 
-3. Create and run a docker container
+3. Create and run docker containers in a bridge network
   - Use `docker run` to create and start a container
-  - Use the `-v` flag to map the current working directory to the app folder
+  - Create a custom bridge network
+  - Then use the `-v` flag to map the current working directory to the app folder
+    + First `cd` into the app root directory
   
-    ```
-    docker run -d -p 5000:5000 --name web2 -v $(pwd):/app tonysneed/aspnetcore2
-    ```
+  ```
+  docker network create --driver bridge my_network
+  docker run -d --net=my_network --name my-mongodb -v mongo-data:/data/db mongo
+  docker run -d --net=my_network --name mongoose -v $(pwd):/var/www tonysneed/mongoose
+  docker run -d -p 5000:5000 --net=my_network --name aspnetcore3 -v $(pwd):/app tonysneed/aspnetcore3
+  ```
 
 4. Run the app from a browser
   - Run `docker-machine ip` to reveal the VM's IP address
   - Use the IP address to open the web app
-    + `http://192.168.99.100:5000/hello.html`
-
-5. Now with the container still running, edit the file **hello.html** under wwwroot
-  - Add "from Docker" to the end of the greeting
-  - Simply *refresh the browser* to view the updated text!
-  
+    + `http://192.168.99.100:5000`
+  - You should be able to update the web site and see the changes
+    + You may need to restart the container for changes to take effect
