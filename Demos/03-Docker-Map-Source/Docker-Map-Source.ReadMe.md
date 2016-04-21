@@ -10,7 +10,7 @@
     + `docker images`
   
     ```
-    docker build --tag <username>/aspnetcore2 -- file Dockerfile .
+    docker build --tag tonysneed/aspnetcore2 -- file Dockerfile .
     ```
 
 3. Create and run a docker container
@@ -30,3 +30,22 @@
   - Add "from Docker" to the end of the greeting
   - Simply *refresh the browser* to view the updated text!
   
+6. While updating static content is nice, updating dynamic content requires us
+   to restart the container.
+   - To solve this issue, we can use `dnx-watch`
+   - When a change is made to a code file, the app will restart
+   - Then we just refresh the browser to see the change
+   
+7. Update the Dockerfile with an additonal RUN statement
+
+    ```
+    RUN ["dnu", "commands", "install", "Microsoft.Dnx.Watcher"]
+    ```
+
+8. Then change the ENTRYPOINT to use `dnx-watch` instead of `dnx`.
+
+```
+ENTRYPOINT ["dnx-watch", "web"]
+```
+
+
