@@ -1,4 +1,4 @@
-# docker build --tag tonysneed/aspnetcore2 -- file Dockerfile .
+# docker build --tag tonysneed/aspnetcore2 --file Dockerfile .
 
 # docker run -d -p 5000:5000 --name web2 -v $(pwd):/app tonysneed/aspnetcore2
 
